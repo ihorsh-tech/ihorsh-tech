@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Щоденне Слово</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
+
+        .font-serif {
+            font-family: 'Crimson Text', serif;
+        }
+
+        .font-sans {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <!-- Header -->
+        <header class="text-center mb-12 fade-in">
+            <h1 class="text-5xl md:text-6xl font-serif font-bold text-indigo-900 mb-3">
+                Щоденне Слово
+            </h1>
+            <p class="text-lg text-gray-600 font-light">
+                Натисніть кнопку і отримайте біблійний вірш з AI-трактуванням
+            </p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="space-y-8">
+            <!-- Button -->
+            <div class="text-center">
+                <button
+                    id="getVerseBtn"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                    Отримати вірш
+                </button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden text-center py-8">
+                <div class="spinner mx-auto mb-4"></div>
+                <p class="text-gray-600">Завантаження трактування...</p>
+            </div>
+
+            <!-- Verse Display -->
+            <div id="verseContainer" class="hidden">
+                <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10 fade-in">
+                    <!-- Reference -->
+                    <div class="mb-4">
+                        <span id="verseReference" class="inline-block bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full text-sm font-semibold">
+                        </span>
+                    </div>
+
+                    <!-- Verse Text -->
+                    <blockquote id="verseText" class="text-2xl md:text-3xl font-serif text-gray-800 leading-relaxed mb-8 italic border-l-4 border-indigo-500 pl-6">
+                    </blockquote>
+
+                    <!-- Interpretation -->
+                    <div id="interpretationContainer" class="border-t border-gray-200 pt-6">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                            Трактування
+                        </h2>
+                        <div id="interpretationText" class="text-gray-700 leading-relaxed space-y-3 font-sans">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorContainer" class="hidden">
+                <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 fade-in">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-red-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-red-800 font-semibold mb-1">Виникла помилка</h3>
+                            <p id="errorMessage" class="text-red-700"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center mt-16 text-gray-500 text-sm">
+            <p>Powered by Claude AI • Made with ❤️</p>
+        </footer>
+    </div>
+
+    <script>
+        const getVerseBtn = document.getElementById('getVerseBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const verseContainer = document.getElementById('verseContainer');
+        const errorContainer = document.getElementById('errorContainer');
+        const verseReference = document.getElementById('verseReference');
+        const verseText = document.getElementById('verseText');
+        const interpretationText = document.getElementById('interpretationText');
+        const errorMessage = document.getElementById('errorMessage');
+
+        async function getVerse() {
+            try {
+                // Reset UI
+                verseContainer.classList.add('hidden');
+                errorContainer.classList.add('hidden');
+                loadingIndicator.classList.remove('hidden');
+                getVerseBtn.disabled = true;
+
+                // API call
+                const response = await fetch('/api/verse', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Помилка сервера');
+                }
+
+                // Display verse
+                verseReference.textContent = data.reference;
+                verseText.textContent = `"${data.verse}"`;
+
+                // Format interpretation with paragraphs
+                const formattedInterpretation = data.interpretation
+                    .split('\n')
+                    .filter(line => line.trim())
+                    .map(line => `<p>${line}</p>`)
+                    .join('');
+
+                interpretationText.innerHTML = formattedInterpretation;
+
+                // Show result
+                loadingIndicator.classList.add('hidden');
+                verseContainer.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+
+                loadingIndicator.classList.add('hidden');
+                errorMessage.textContent = error.message;
+                errorContainer.classList.remove('hidden');
+            } finally {
+                getVerseBtn.disabled = false;
+            }
+        }
+
+        getVerseBtn.addEventListener('click', getVerse);
+
+        // Optional: Load verse on page load
+        // window.addEventListener('load', getVerse);
+    </script>
+</body>
+</html>
