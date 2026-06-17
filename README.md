@@ -1,6 +1,7 @@
-### Ihor — entrepreneur · growth operator → AI systems builder
+### Ihor Shtelmakh
+Entrepreneur · Growth operator · AI systems builder
 
-Co-founder and operator in **B2C SaaS** — I've built and scaled products (paid acquisition, funnels, retention, unit economics). Now I build the **AI infrastructure that does the work** — not just demos of it.
+Co-founder and Growth operator in **B2C SaaS** — I've built and scaled performance marketing-based products (paid acquisition, funnels, retention, unit economics). Now I build the **AI infrastructure that does the work**.
 
 - 🦞 **OpenClaw** — my self-hosted, always-on AI agent (Claude-powered, Telegram-native), running 24/7 on my own cloud
 - 🧰 A curated **100+ skill library** for Claude Code & OpenClaw — growth, ads, finance, design, automation
